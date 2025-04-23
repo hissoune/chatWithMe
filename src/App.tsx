@@ -1,22 +1,22 @@
-
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import Home from "./home";
+import Chat from "./chat";
 
 function App() {
 
   return (
-    <>
-      <div className="bg-gray-600 h-screen  flex items-center justify-center">
-      <div>
-        <h1 className="text-3xl font-bold text-center text-white">Welcome to AI chat </h1>
-        <p className="text-center text-white mt-4">This is a simple example application for chat with the ai </p>
-        <div className="mt-8 flex justify-center">
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded   ">
-            <a href="/chat" className="text-white">Start Chat</a>   
-          </button>
-        </div>
-      </div>
-      </div>
-      
-    </>
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-gray-800 to-gray-900">
+      <BrowserRouter >
+        
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/chat" element={<Chat />} />
+            
+        </Routes>
+          
+        </BrowserRouter>
+    </div>
+  
   )
 }
 
