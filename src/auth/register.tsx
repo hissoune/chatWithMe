@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import useAppDispatch from '../redux/useAppdispatch';
+import { registerAction } from '../redux/slices/authSlice';
+import PasswordInput from '../components/passwordInput';
 
 const Register: React.FC = () => {
     const [formData, setFormData] = useState({
-        username: '',
+        name: '',
         email: '',
         password: '',
-        confirmPassword: '',
+       
     });
-
+  const dispatch = useAppDispatch()
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -15,12 +18,22 @@ const Register: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (formData.password !== formData.confirmPassword) {
-            alert('Passwords do not match!');
-            return;
-        }
-        // Handle registration logic here
-        console.log('User registered:', formData);
+      
+        dispatch(registerAction(formData))
+        .then((response) => {
+            console.log('Registration successful:', response);
+            // Handle successful registration (e.g., redirect to login page)
+        })
+        .catch((error) => {
+            console.error('Registration failed:', error);
+            // Handle registration error (e.g., show error message)
+        });
+        setFormData({
+            name: '',
+            email: '',
+            password: '',
+        });
+        
     };
 
     return (
@@ -36,14 +49,14 @@ const Register: React.FC = () => {
                   </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                             Username
                         </label>
                         <input
                             type="text"
-                            id="username"
-                            name="username"
-                            value={formData.username}
+                            id="name"
+                            name="name"
+                            value={formData.name}
                             placeholder='Enter your username'
                             onChange={handleChange}
                             required
@@ -67,19 +80,7 @@ const Register: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder='Enter your password'
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full px-4 py-2 bg-slate-300 shadow-inner shadow-slate-400 border border-gray-300 rounded-md  focus:ring-blue-500 focus:border-blue-500"
-                        />
+                       <PasswordInput value={formData.password} onChange={(value) => handleChange({ target: { name: 'password', value } } as React.ChangeEvent<HTMLInputElement>)} />
                     </div>
                 
                     <button
