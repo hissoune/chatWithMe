@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { login, register } from '../../services/api/authApi';
-
-
-
+import Cookies from 'js-cookie';
 
 const initialState = {
     user: null,
@@ -10,7 +8,7 @@ const initialState = {
     isAuthenticated: false,
     loading: false,
     error: null as string | null
-}
+};
 
 export const loginAction = createAsyncThunk('auth/login', async ({ email, password }: { email: string; password: string }) => {
     try {
@@ -30,17 +28,15 @@ export const registerAction = createAsyncThunk('auth/register', async ({ name, e
     }
 });
 
- export const loaduserFromLocalStorage = createAsyncThunk('auth/loadUserFromLocalStorage', () => {
+export const loaduserFromCookies = createAsyncThunk('auth/loadUserFromCookies', () => {
+    const token = localStorage.getItem('token') || Cookies.get('token') || null;
     const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') as string) : null;
-    const token = localStorage.getItem('token') ? localStorage.getItem('token') : null;
     const isAuthenticated = token !== null && token !== undefined && token !== '';
     return { user, token, isAuthenticated };
 });
 
-
-
 const authSlice = createSlice({
-  name: 'auth',
+    name: 'auth',
     initialState,
     reducers: {
         setUser: (state, action) => {
@@ -59,21 +55,23 @@ const authSlice = createSlice({
             state.error = action.payload as string | null;
         },
     },
-    extraReducers: (builder) => {   
+    extraReducers: (builder) => {
         builder
             .addCase(loginAction.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
             .addCase(loginAction.fulfilled, (state, action) => {
-                state.loading = false;
-                state.user = action.payload.user;
-                state.token = action.payload.token;
-                localStorage.setItem('token', action.payload.token);
-                localStorage.setItem('user', JSON.stringify(action.payload.user));
-                state.isAuthenticated = true;
+
+                    state.loading = false;
+                    state.user = action.payload.user;
+                    state.token = action.payload.token;
+                 localStorage.setItem('token', action.payload.token);
+                 localStorage.setItem('user', JSON.stringify(action.payload.user));
+                 state.isAuthenticated = true;
             })
             .addCase(loginAction.rejected, (state, action) => {
+                console.log('Login failed! Error:', action.error);
                 state.loading = false;
                 state.error = action.payload as string | null;
             })
@@ -89,23 +87,22 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string | null;
             })
-            .addCase(loaduserFromLocalStorage.pending, (state) => {
+            .addCase(loaduserFromCookies.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(loaduserFromLocalStorage.fulfilled, (state, action) => {
+            .addCase(loaduserFromCookies.fulfilled, (state, action) => {
                 state.loading = false;
                 state.user = action.payload.user;
                 state.token = action.payload.token;
                 state.isAuthenticated = action.payload.isAuthenticated;
-            }
-            )
-            .addCase(loaduserFromLocalStorage.rejected, (state, action) => {
+            })
+            .addCase(loaduserFromCookies.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string | null;
-            }
-        )
+            });
     }
 });
+
 export const { setUser, setToken, setIsAuthenticated, setLoading, setError } = authSlice.actions;
 export const authReducer = authSlice.reducer;
