@@ -1,5 +1,11 @@
+import { useSelector } from "react-redux"
 
 function home() {
+  const {isAuthenticated} = useSelector((state: any) => state.auth)
+
+  if (isAuthenticated) {
+    window.location.href = "/chat"
+  }
   return (
        <div >
         <h1 className="text-3xl font-bold text-center text-white">Welcome to AI chat </h1>
